@@ -20,6 +20,7 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,15 +36,26 @@ import frgp.utn.edu.ar.tp4.ui.theme.TP4Theme
 
 class MainActivity : ComponentActivity() {
     val viewModel: MainViewModel by viewModels()
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             TP4Theme {
-                ScaffoldView(
-                    modifier = Modifier,
-                    viewModel = viewModel
-                )
+                Scaffold (
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text(text = "TP4")
+                            }
+                        )
+                    },
+                ) { innerPadding ->
+                    ScaffoldView(
+                        modifier = Modifier.padding(innerPadding),
+                        viewModel = viewModel
+                    )
+                }
             }
         }
     }
