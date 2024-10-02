@@ -1,20 +1,23 @@
 package frgp.utn.edu.ar.tp4
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.layout.paddingFromBaseline
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
@@ -28,7 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -86,7 +89,8 @@ fun ScaffoldView(modifier: Modifier = Modifier, viewModel: MainViewModel) {
             Box(
                 modifier = Modifier
                     .paddingFromBaseline(32.dp)
-                    .fillMaxSize()
+                    .fillMaxSize(),
+                contentAlignment = Alignment.TopCenter
             ) {
                 when (state) {
                     0 -> CrearTabContent(viewModel)
@@ -98,10 +102,18 @@ fun ScaffoldView(modifier: Modifier = Modifier, viewModel: MainViewModel) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CrearTabContent(viewModel: MainViewModel) {
-
-    Column(modifier = Modifier.padding(16.dp)) {
+    val context = LocalContext.current
+    var expanded by remember { mutableStateOf(false) }
+    val categories = arrayOf("Verduras", "Frutas", "Almacen", "Lacteos", "Mocha")
+    var selectedText by remember { mutableStateOf(categories[0]) }
+    Column(
+        modifier = Modifier.padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
         OutlinedTextField(
             value = viewModel.create__idText,
             placeholder = { Text(text = "ID") },
@@ -126,6 +138,44 @@ fun CrearTabContent(viewModel: MainViewModel) {
             isError = viewModel.create__stockError
         )
         Spacer(modifier = Modifier.padding(5.dp))
+        ExposedDropdownMenuBox (
+            expanded = expanded,
+            onExpandedChange = {
+                expanded = !expanded
+            }
+        ) {
+            OutlinedTextField(
+                value = selectedText,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.menuAnchor()
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                categories.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(text = item) },
+                        onClick = {
+                            selectedText = item
+                            expanded = false
+                            Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.padding(5.dp))
+        Button(
+            onClick = {
+                /* TODO */
+            }
+        ) {
+            Text(text = "Agregar")
+        }
     }
 }
 
