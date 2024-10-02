@@ -7,12 +7,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.layout.paddingFromBaseline
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -86,7 +89,32 @@ fun ScaffoldView(modifier: Modifier = Modifier, viewModel: MainViewModel) {
 @Composable
 fun CrearTabContent(viewModel: MainViewModel) {
 
-    
+    Column(modifier = Modifier.padding(16.dp)) {
+        OutlinedTextField(
+            value = viewModel.create__idText,
+            placeholder = { Text(text = "ID") },
+            onValueChange = {viewModel.onCreate__idTextChange(it)},
+            supportingText = { Text(text = viewModel.create__idMsg) },
+            isError = viewModel.create__idError
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
+        OutlinedTextField(
+            placeholder = { Text(text = "Nombre") },
+            value = viewModel.create__nameText,
+            onValueChange = {viewModel.onCreate__nameTextChange(it)},
+            supportingText = { Text(text = viewModel.create__nameMsg) },
+            isError = viewModel.create__nameError
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
+        OutlinedTextField(
+            placeholder = { Text(text = "Stock disponible") },
+            value = viewModel.create__stockText.toString(),
+            onValueChange = {viewModel.onCreate__stockTextChange(it.toInt())},
+            supportingText = { Text(text = viewModel.create__stockMsg) },
+            isError = viewModel.create__stockError
+        )
+        Spacer(modifier = Modifier.padding(5.dp))
+    }
 }
 
 @Composable
