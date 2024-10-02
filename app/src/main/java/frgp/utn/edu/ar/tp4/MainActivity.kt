@@ -113,7 +113,7 @@ fun ScaffoldView(modifier: Modifier = Modifier, viewModel: MainViewModel) {
 fun CrearTabContent(viewModel: MainViewModel) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
-    val categories = arrayOf("Verduras", "Frutas", "Almacen", "Lacteos", "Mocha")
+    val categories = arrayOf("Verduras", "Frutas", "Almacen", "Lacteos", "Fiambres")
     var selectedText by remember { mutableStateOf(categories[0]) }
     Column(
         modifier = Modifier.padding(16.dp),
