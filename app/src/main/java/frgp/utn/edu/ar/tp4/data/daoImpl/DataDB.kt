@@ -1,7 +1,7 @@
 package frgp.utn.edu.ar.tp4.data.daoImpl
 
 class DataDB {
-    val host: String = "www.canedo.com.ar"
+    val host: String = "canedo.com.ar"
     val port: String = "3306"
     val nameBD: String = "tp4"
     val user: String = "tp4client"
