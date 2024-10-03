@@ -28,7 +28,6 @@ class CategoryDaoImpl : CategoryDao {
         val categories : MutableList<Category> = mutableListOf<Category>().toMutableList()
         val dataDB = DataDB()
         try {
-            Class.forName(dataDB.driver)
             val connection: Connection = DriverManager.getConnection(dataDB.urlMySQL, dataDB.user, dataDB.pass)
             val statement: Statement = connection.createStatement()
             val resulSet: ResultSet = statement.executeQuery("SELECT * FROM cliente")

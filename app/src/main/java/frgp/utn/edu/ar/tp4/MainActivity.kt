@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import frgp.utn.edu.ar.tp4.data.daoImpl.CategoryDaoImpl
 import frgp.utn.edu.ar.tp4.ui.theme.TP4Theme
 
 class MainActivity : ComponentActivity() {
@@ -193,8 +194,8 @@ fun ModificarTabContent(viewModel: MainViewModel) {
 @Composable
 fun ListarTabContent(viewModel: MainViewModel) {
     var items by remember { mutableStateOf(listOf<String>()) }
-    items += "Item 1"
-    items += "Item 2"
+    val categoryDaoImpl = CategoryDaoImpl()
+    items = categoryDaoImpl.getAllCategories().map { it.toString() }
 
     LazyColumn (
         modifier = Modifier
