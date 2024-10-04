@@ -6,17 +6,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -186,16 +190,118 @@ fun CrearTabContent(viewModel: MainViewModel) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModificarTabContent(viewModel: MainViewModel) {
+    val context = LocalContext.current
+    var expanded by remember { mutableStateOf(false) }
+    var selectedText by remember { mutableStateOf("") }
 
+    Column(
+        modifier = Modifier
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .background(Color.LightGray)
+                .padding(16.dp)
+        ) {
+            Column {
+                OutlinedTextField(
+                    value = viewModel.create__idText,
+                    placeholder = { Text(text = "ID") },
+                    onValueChange = { viewModel.onCreate__idTextChange(it) },
+                    supportingText = { Text(text = viewModel.create__idMsg) },
+                    isError = viewModel.create__idError,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        /* TODO */
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor  = Color.DarkGray,
+                        contentColor = Color.White
+                    ),
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text(text = "Buscar")
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(96.dp))
+        OutlinedTextField(
+            placeholder = { Text(text = "Nombre") },
+            value = viewModel.create__nameText,
+            onValueChange = {viewModel.onCreate__nameTextChange(it)},
+            supportingText = { Text(text = viewModel.create__nameMsg) },
+            isError = viewModel.create__nameError
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedTextField(
+            placeholder = { Text(text = "Stock disponible") },
+            value = "",
+            onValueChange = { },
+            supportingText = { Text(text = viewModel.create__stockMsg) },
+            isError = viewModel.create__stockError
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        ExposedDropdownMenuBox (
+            expanded = expanded,
+            onExpandedChange = {
+                expanded = !expanded
+            }
+        ) {
+            OutlinedTextField(
+                placeholder = { Text(text = "Categoria") },
+                value = selectedText,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.menuAnchor()
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text(text = "") },
+                    onClick = {
+                        selectedText = ""
+                        expanded = false
+                        Toast.makeText(context, "", Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(64.dp))
+        Button(
+            onClick = {
+                /* TODO */
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor  = Color.DarkGray,
+                contentColor = Color.White
+            ),
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text(text = "Modificar")
+        }
+    }
 }
 
 @Composable
 fun ListarTabContent(viewModel: MainViewModel) {
     var items by remember { mutableStateOf(listOf<String>()) }
     val categoryDaoImpl = CategoryDaoImpl()
-    items = categoryDaoImpl.getAllCategories().map { it.toString() }
+    //items = categoryDaoImpl.getAllCategories().map { it.toString() }
 
     LazyColumn (
         modifier = Modifier
