@@ -185,7 +185,7 @@ fun CrearTabContent(viewModel: MainViewModel) {
                 /* TODO */
             }
         ) {
-            Text(text = "Agregar")
+            Text(text = "Crear")
         }
     }
 }
@@ -301,7 +301,7 @@ fun ModificarTabContent(viewModel: MainViewModel) {
 fun ListarTabContent(viewModel: MainViewModel) {
     var items by remember { mutableStateOf(listOf<String>()) }
     val categoryDaoImpl = CategoryDaoImpl()
-    items = categoryDaoImpl.getAllCategories().map { it.toString() }
+    //items = categoryDaoImpl.getAllCategories().map { it.toString() }
 
     LazyColumn (
         modifier = Modifier
