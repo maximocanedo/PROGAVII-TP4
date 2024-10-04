@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
@@ -37,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -139,11 +141,23 @@ fun CrearTabContent(viewModel: MainViewModel) {
         Spacer(modifier = Modifier.padding(5.dp))
         OutlinedTextField(
             placeholder = { Text(text = "Stock disponible") },
-            value = viewModel.create__stockText.toString(),
-            onValueChange = {viewModel.onCreate__stockTextChange(it.toInt())},
+            value = viewModel.create__stockText,
+            onValueChange = { newText ->
+                if (newText.isEmpty()) {
+                    viewModel.onCreate__stockTextChange("")
+                } else {
+                    newText.toInt()
+                    viewModel.onCreate__stockTextChange(newText)
+                }
+            },
             supportingText = { Text(text = viewModel.create__stockMsg) },
-            isError = viewModel.create__stockError
+            isError = viewModel.create__stockError,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number
+            )
+
         )
+
         Spacer(modifier = Modifier.padding(5.dp))
         ExposedDropdownMenuBox (
             expanded = expanded,

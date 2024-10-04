@@ -7,4 +7,5 @@ class DataDB {
     val user: String = "tp4client"
     val pass: String = "UTN.TUSI.2024"
     val urlMySQL: String = "jdbc:mysql://$host:$port/$nameBD"
+    val driver = "com.mysql.cj.jdbc.Driver"
 }
