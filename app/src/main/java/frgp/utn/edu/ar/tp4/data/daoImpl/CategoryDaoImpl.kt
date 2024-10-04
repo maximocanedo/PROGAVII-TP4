@@ -24,18 +24,18 @@ class CategoryDaoImpl : CategoryDao {
         TODO("Not yet implemented")
     }
 
-    override fun getAllCategories(): List<Category> {
+    override suspend fun getAllCategories(): List<Category> {
         val categories : MutableList<Category> = mutableListOf<Category>().toMutableList()
         val dataDB = DataDB()
         try {
             val connection: Connection = DriverManager.getConnection(dataDB.urlMySQL, dataDB.user, dataDB.pass)
             val statement: Statement = connection.createStatement()
-            val resulSet: ResultSet = statement.executeQuery("SELECT * FROM cliente")
+            val resulSet: ResultSet = statement.executeQuery("SELECT * FROM categoria")
 
             while (resulSet.next()) {
                 val category = Category()
                 category.setId(resulSet.getInt("id"))
-                category.setDescription(resulSet.getString("description"))
+                category.setDescription(resulSet.getString("descripcion"))
                 categories += category
             }
             resulSet.close()

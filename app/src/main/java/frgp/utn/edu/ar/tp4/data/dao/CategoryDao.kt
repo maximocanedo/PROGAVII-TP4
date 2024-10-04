@@ -7,5 +7,5 @@ interface CategoryDao {
     fun updateCategory(category: Category)
     fun deleteCategory(category: Category)
     fun getCategoryById(id: Int): Category
-    fun getAllCategories(): List<Category>
+    suspend fun getAllCategories(): List<Category>
 }
