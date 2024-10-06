@@ -1,5 +1,6 @@
 package frgp.utn.edu.ar.tp4
 
+import ArticleDaoImpl
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -52,6 +53,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import frgp.utn.edu.ar.tp4.data.daoImpl.CategoryDaoImpl
 import frgp.utn.edu.ar.tp4.ui.theme.TP4Theme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     val viewModel: MainViewModel by viewModels()
@@ -149,7 +153,7 @@ fun CrearTabContent(viewModel: MainViewModel) {
         OutlinedTextField(
             placeholder = { Text(text = "Stock disponible") },
             value = viewModel.create__stockText.toString(),
-            onValueChange = {viewModel.onCreate__stockTextChange(it.toInt())},
+            onValueChange = {viewModel.onCreate__stockTextChange(it.toInt().toString())},
             supportingText = { Text(text = viewModel.create__stockMsg) },
             isError = viewModel.create__stockError
         )
@@ -227,7 +231,13 @@ fun ModificarTabContent(viewModel: MainViewModel) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
-                        /* TODO */
+                        val id = viewModel.create__idText
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val articleDaoImpl = ArticleDaoImpl()
+
+                            articleDaoImpl.getArticleById(id.toInt())
+                            println(articleDaoImpl)
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor  = Color.DarkGray,
@@ -335,7 +345,7 @@ fun ListarTabContent(viewModel: MainViewModel) {
                         )
                         {
                             Column {
-                                 Text(
+                                Text(
                                     text = item,
                                     textAlign = TextAlign.Center,
                                     maxLines = 1,
