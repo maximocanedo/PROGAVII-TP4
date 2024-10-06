@@ -51,14 +51,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import frgp.utn.edu.ar.tp4.activity.Article.ArticleViewModel
 import frgp.utn.edu.ar.tp4.data.daoImpl.CategoryDaoImpl
 import frgp.utn.edu.ar.tp4.ui.theme.TP4Theme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     val viewModel: MainViewModel by viewModels()
+    val articleViewModel: ArticleViewModel by viewModels()
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,7 +79,8 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     ScaffoldView(
                         modifier = Modifier.padding(innerPadding),
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        articleViewModel = articleViewModel
                     )
                 }
             }
@@ -86,7 +90,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScaffoldView(modifier: Modifier = Modifier, viewModel: MainViewModel) {
+fun ScaffoldView(modifier: Modifier = Modifier, viewModel: MainViewModel, articleViewModel: ArticleViewModel) {
 
     val state = viewModel.selectedTabIndex
     val titles = listOf("Crear", "Modificar", "Listar")
@@ -114,7 +118,7 @@ fun ScaffoldView(modifier: Modifier = Modifier, viewModel: MainViewModel) {
             ) {
                 when (state) {
                     0 -> CrearTabContent(viewModel)
-                    1 -> ModificarTabContent(viewModel)
+                    1 -> ModificarTabContent(viewModel, articleViewModel)
                     2 -> ListarTabContent(viewModel)
                 }
             }
@@ -201,10 +205,11 @@ fun CrearTabContent(viewModel: MainViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ModificarTabContent(viewModel: MainViewModel) {
+fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewModel) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf("") }
+    val articleDaoImpl = ArticleDaoImpl()
 
     Column(
         modifier = Modifier
@@ -233,10 +238,10 @@ fun ModificarTabContent(viewModel: MainViewModel) {
                     onClick = {
                         val id = viewModel.create__idText
                         CoroutineScope(Dispatchers.IO).launch {
-                            val articleDaoImpl = ArticleDaoImpl()
-
-                            articleDaoImpl.getArticleById(id.toInt())
-                            println(articleDaoImpl)
+                            val article = articleDaoImpl.getArticleById(id.toInt())
+                            withContext(Dispatchers.Main) {
+                                articleViewModel.updateFieldsFromArticle(article)
+                            }
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
@@ -253,18 +258,18 @@ fun ModificarTabContent(viewModel: MainViewModel) {
         Spacer(modifier = Modifier.height(96.dp))
         OutlinedTextField(
             placeholder = { Text(text = "Nombre") },
-            value = viewModel.create__nameText,
-            onValueChange = {viewModel.onCreate__nameTextChange(it)},
-            supportingText = { Text(text = viewModel.create__nameMsg) },
-            isError = viewModel.create__nameError
+            value = articleViewModel.create__nameText,
+            onValueChange = {articleViewModel.create__nameText = it},
+            supportingText = { Text(text = articleViewModel.create__nameMsg) },
+            isError = articleViewModel.create__nameError
         )
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             placeholder = { Text(text = "Stock disponible") },
-            value = "",
-            onValueChange = { },
-            supportingText = { Text(text = viewModel.create__stockMsg) },
-            isError = viewModel.create__stockError
+            value = articleViewModel.create__stockText,
+            onValueChange = { articleViewModel.create__stockText = it },
+            supportingText = { Text(text = articleViewModel.create__stockMsg) },
+            isError = articleViewModel.create__stockError
         )
         Spacer(modifier = Modifier.height(16.dp))
         ExposedDropdownMenuBox (
@@ -275,7 +280,7 @@ fun ModificarTabContent(viewModel: MainViewModel) {
         ) {
             OutlinedTextField(
                 placeholder = { Text(text = "Categoria") },
-                value = selectedText,
+                value = articleViewModel.create__categoryText,
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -377,6 +382,6 @@ fun ListarTabContent(viewModel: MainViewModel) {
 @Composable
 fun GreetingPreview() {
     TP4Theme {
-        ScaffoldView(modifier = Modifier, viewModel = MainViewModel())
+        ScaffoldView(modifier = Modifier, viewModel = MainViewModel(), articleViewModel = ArticleViewModel(articleDao = ArticleDaoImpl()))
     }
 }
