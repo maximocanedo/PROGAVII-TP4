@@ -20,6 +20,12 @@ android {
         }
     }
 
+    configurations.all {
+        resolutionStrategy {
+            force("mysql:mysql-connector-java:5.1.1")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
