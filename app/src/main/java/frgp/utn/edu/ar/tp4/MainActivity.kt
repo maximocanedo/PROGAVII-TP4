@@ -344,23 +344,26 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListarTabContent(viewModel: MainViewModel) {
     val items = viewModel.items
     var isRefreshing by remember { mutableStateOf(false) }
 
-    TextButton(
-        onClick = {
-            isRefreshing = true
-            CoroutineScope(Dispatchers.IO).launch {
-                viewModel.loadItems()
-                isRefreshing = false
+    Column {
+        TextButton(
+            modifier = Modifier
+                .paddingFromBaseline(top = 16.dp, bottom = 16.dp),
+            onClick = {
+                isRefreshing = true
+                CoroutineScope(Dispatchers.IO).launch {
+                    viewModel.loadItems()
+                    isRefreshing = false
+                }
             }
+        ) {
+            Text(text = if (isRefreshing) "Cargando..." else "Actualizar")
         }
-    ) {
-        Text(text =( if (isRefreshing) "Cargando..." else "Actualizar") )
-    }
-
         if (viewModel.listError) {
             Text(text = viewModel.emptyListMessage, color = Color.Red)
         } else if (items.isEmpty()) {
@@ -376,7 +379,7 @@ fun ListarTabContent(viewModel: MainViewModel) {
                 }
             }
         }
-
+    }
 }
 
 @Preview(showBackground = true)
