@@ -382,6 +382,6 @@ fun ListarTabContent(viewModel: MainViewModel) {
 @Composable
 fun GreetingPreview() {
     TP4Theme {
-        ScaffoldView(modifier = Modifier, viewModel = MainViewModel(), articleViewModel = ArticleViewModel(articleDao = ArticleDaoImpl()))
+        ScaffoldView(modifier = Modifier, viewModel = MainViewModel(), articleViewModel = ArticleViewModel())
     }
 }

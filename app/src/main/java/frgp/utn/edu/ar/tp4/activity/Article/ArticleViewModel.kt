@@ -1,15 +1,16 @@
 package frgp.utn.edu.ar.tp4.activity.Article
 
+import ArticleDaoImpl
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import frgp.utn.edu.ar.tp4.data.dao.ArticleDao
 import frgp.utn.edu.ar.tp4.data.models.Article
 import kotlinx.coroutines.launch
 
-class ArticleViewModel(private val articleDao: ArticleDao) : ViewModel() {
+class ArticleViewModel() : ViewModel() {
+    val articleDaoImpl = ArticleDaoImpl()
     var create__nameText by mutableStateOf("")
     var create__stockText by mutableStateOf("")
     var create__categoryText by mutableStateOf("")
@@ -27,19 +28,19 @@ class ArticleViewModel(private val articleDao: ArticleDao) : ViewModel() {
 
     fun insertArticle(article: Article) {
         viewModelScope.launch {
-            articleDao.insertArticle(article)
+            articleDaoImpl.insertArticle(article)
         }
     }
 
     fun updateArticle(article: Article) {
         viewModelScope.launch {
-            articleDao.updateArticle(article)
+            articleDaoImpl.updateArticle(article)
         }
     }
 
     fun deleteArticle(article: Article) {
         viewModelScope.launch {
-            articleDao.deleteArticle(article)
+            articleDaoImpl.deleteArticle(article)
         }
     }
 
