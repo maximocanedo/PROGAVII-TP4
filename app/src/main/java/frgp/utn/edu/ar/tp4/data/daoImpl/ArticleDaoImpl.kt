@@ -114,7 +114,7 @@ class ArticleDaoImpl : ArticleDao {
                 val connection: Connection = DriverManager.getConnection(dataDB.urlMySQL, dataDB.user, dataDB.pass)
                 val statement: Statement = connection.createStatement()
                 val sql = "SELECT a.id, a.nombre, a.stock, c.id AS category, c.descripcion " +
-                        "FROM articulo a JOIN category c ON a.category = c.id"
+                        "FROM articulo a JOIN categoria c ON a.idCategoria = c.id"
                 val resultSet: ResultSet = statement.executeQuery(sql)
 
                 while (resultSet.next()) {

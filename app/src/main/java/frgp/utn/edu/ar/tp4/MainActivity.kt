@@ -11,35 +11,28 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,10 +43,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import frgp.utn.edu.ar.tp4.activity.Article.ArticleViewModel
 import frgp.utn.edu.ar.tp4.data.daoImpl.CategoryDaoImpl
 import frgp.utn.edu.ar.tp4.data.models.Article
@@ -353,21 +347,36 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
 @Composable
 fun ListarTabContent(viewModel: MainViewModel) {
     val items = viewModel.items
-    if (viewModel.listError) {
-        Text(text = viewModel.emptyListMessage, color = Color.Red)
-    } else if (items.isEmpty()) {
-        Text(text = viewModel.emptyListMessage)
-    } else {
-        LazyColumn {
-            items(items) {
-                ListItem(
-                    headlineContent = { Text(it.getName()) },
-                    supportingContent = { Text(it.getCategory().getDescription()) },
-                    trailingContent = { Text(it.getStock().toString()) }
-                )
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    TextButton(
+        onClick = {
+            isRefreshing = true
+            CoroutineScope(Dispatchers.IO).launch {
+                viewModel.loadItems()
+                isRefreshing = false
             }
         }
+    ) {
+        Text(text =( if (isRefreshing) "Cargando..." else "Actualizar") )
     }
+
+        if (viewModel.listError) {
+            Text(text = viewModel.emptyListMessage, color = Color.Red)
+        } else if (items.isEmpty()) {
+            Text(text = viewModel.emptyListMessage)
+        } else {
+            LazyColumn {
+                items(items) {
+                    ListItem(
+                        headlineContent = { Text(it.getName()) },
+                        supportingContent = { Text(it.getCategory().getDescription()) },
+                        trailingContent = { Text(it.getStock().toString()) }
+                    )
+                }
+            }
+        }
+
 }
 
 @Preview(showBackground = true)
