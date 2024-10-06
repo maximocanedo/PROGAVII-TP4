@@ -13,7 +13,7 @@ class ArticleDaoImpl : ArticleDao {
 
     override suspend fun insertArticle(article: Article) {
         val dataDB = DataDB()
-        val sql = "INSERT INTO articles (id, name, stock, category) VALUES (?, ?, ?, ?)"
+        val sql = "INSERT INTO articles (id, nombre, stock, category) VALUES (?, ?, ?, ?)"
         withContext(Dispatchers.IO) {
             try {
                 Class.forName(dataDB.driver)
@@ -34,7 +34,7 @@ class ArticleDaoImpl : ArticleDao {
 
     override suspend fun updateArticle(article: Article) {
         val dataDB = DataDB()
-        val sql = "UPDATE articles SET name = ?, stock = ?, category = ? WHERE id = ?"
+        val sql = "UPDATE articulo SET nombre = ?, stock = ?, category = ? WHERE id = ?"
         withContext(Dispatchers.IO) {
             try {
                 Class.forName(dataDB.driver)
@@ -55,7 +55,7 @@ class ArticleDaoImpl : ArticleDao {
 
     override suspend fun deleteArticle(article: Article) {
         val dataDB = DataDB()
-        val sql = "DELETE FROM articles WHERE id = ?"
+        val sql = "DELETE FROM articulo WHERE id = ?"
         withContext(Dispatchers.IO) {
             try {
                 Class.forName(dataDB.driver)
@@ -77,19 +77,21 @@ class ArticleDaoImpl : ArticleDao {
         withContext(Dispatchers.IO) {
             try {
                 Class.forName(dataDB.driver)
-                val connection: Connection = DriverManager.getConnection(dataDB.urlMySQL, dataDB.user, dataDB.pass)
+                val connection: Connection = DriverManager.getConnection("${dataDB.urlMySQL}?characterEncoding=UTF-8", dataDB.user, dataDB.pass)
                 val statement: Statement = connection.createStatement()
-                val sql = "SELECT a.id, a.name, a.stock, c.id AS category, c.description " +
-                        "FROM articles a JOIN categories c ON a.category = c.id WHERE a.id = $id"
+                val sql = "SELECT a.id, a.nombre, a.stock, c.id AS category, c.descripcion " +
+                        "FROM articulo a " +
+                        "JOIN categoria c ON a.idCategoria = c.id " +
+                        "WHERE a.id = $id"
                 val resultSet: ResultSet = statement.executeQuery(sql)
 
                 if (resultSet.next()) {
                     val category = Category(
                         id = resultSet.getInt("category"),
-                        description = resultSet.getString("description")
+                        description = resultSet.getString("descripcion")
                     )
                     article.setId( resultSet.getInt("id"))
-                    article.setName(resultSet.getString("name"))
+                    article.setName(resultSet.getString("nombre"))
                     article.setStock(resultSet.getInt("stock"))
                     article.setCategoryId(category)
                 }
@@ -111,18 +113,18 @@ class ArticleDaoImpl : ArticleDao {
                 Class.forName(dataDB.driver)
                 val connection: Connection = DriverManager.getConnection(dataDB.urlMySQL, dataDB.user, dataDB.pass)
                 val statement: Statement = connection.createStatement()
-                val sql = "SELECT a.id, a.name, a.stock, c.id AS category, c.description " +
-                        "FROM articles a JOIN category c ON a.category = c.id"
+                val sql = "SELECT a.id, a.nombre, a.stock, c.id AS category, c.descripcion " +
+                        "FROM articulo a JOIN category c ON a.category = c.id"
                 val resultSet: ResultSet = statement.executeQuery(sql)
 
                 while (resultSet.next()) {
                     val category = Category(
                         id = resultSet.getInt("category"),
-                        description = resultSet.getString("description")
+                        description = resultSet.getString("descripcion")
                     )
                     val article = Article(
                         id = resultSet.getInt("id"),
-                        name = resultSet.getString("name"),
+                        name = resultSet.getString("nombre"),
                         stock = resultSet.getInt("stock"),
                         category = category
                     )
