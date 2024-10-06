@@ -9,6 +9,7 @@ import frgp.utn.edu.ar.tp4.data.models.Article
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import frgp.utn.edu.ar.tp4.data.models.Category
 
 class MainViewModel : ViewModel() {
 
@@ -32,15 +33,40 @@ class MainViewModel : ViewModel() {
         private set
     var create__stockError by mutableStateOf(false)
         private set
+    var selectedCategoryIndex by mutableStateOf(0)
+        private set
+    var create__selectedCategoryText by mutableStateOf("")
+        private set
+    var create__categories by mutableStateOf(listOf<Category>())
+        private set
 
-    fun onCreate__idTextChange(newText: String) {
+
+    suspend fun onCreate__idTextChange(newText: String) {
+        val articleDaoImpl = ArticleDaoImpl()
+        if (newText.isEmpty()) {
+            create__idText = ""
+        } else {
+            try {
+                val id = newText.toInt()
+                if (articleDaoImpl.getArticleById(id).getId() == id) {
+                    create__idMsg = "El id ya existe"
+                }
+                else {
+                    create__idMsg = ""
+                }
+                create__idText = newText
+                create__idError = false
+            } catch (e: NumberFormatException) {
+                create__idError = true
+                create__idMsg = "El id debe ser un numero valido"
+            }
+        }
         create__idText = newText
     }
     fun onCreate__nameTextChange(newText: String) {
         create__nameText = newText
     }
     fun onCreate__stockTextChange(newText: String) {
-
         if (newText.isEmpty()) {
             create__stockText = ""
         } else {
@@ -54,6 +80,18 @@ class MainViewModel : ViewModel() {
                 create__stockMsg = "El stock debe ser un numero valido"
             }
         }
+    }
+
+    fun onCreate__selectedCategoryIndexChange(newIndex: Int) {
+        selectedCategoryIndex = newIndex
+    }
+
+    fun onCreate__selectedCategoryTextChange(newText: String) {
+        create__selectedCategoryText = newText
+    }
+
+    fun onCreate__categoriesChange(newCategories: List<Category>) {
+        create__categories = newCategories
     }
 
     fun onTabSelected(index: Int) {

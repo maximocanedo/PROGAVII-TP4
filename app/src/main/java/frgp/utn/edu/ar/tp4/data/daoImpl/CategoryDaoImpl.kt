@@ -64,7 +64,7 @@ class CategoryDaoImpl : CategoryDao {
                 Class.forName(dataDB.driver)
                 val connection: Connection = DriverManager.getConnection(dataDB.urlMySQL, dataDB.user, dataDB.pass)
                 val statement: Statement = connection.createStatement()
-                val resulSet: ResultSet = statement.executeQuery("SELECT * FROM categoria")
+                val resulSet: ResultSet = statement.executeQuery("SELECT id, descripcion FROM categoria")
 
                 while (resulSet.next()) {
                     val category = Category()

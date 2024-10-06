@@ -13,7 +13,7 @@ class ArticleDaoImpl : ArticleDao {
 
     override suspend fun insertArticle(article: Article) {
         val dataDB = DataDB()
-        val sql = "INSERT INTO articles (id, nombre, stock, category) VALUES (?, ?, ?, ?)"
+        val sql = "INSERT INTO articulo (id, nombre, stock, idCategoria) VALUES (?, ?, ?, ?)"
         withContext(Dispatchers.IO) {
             try {
                 Class.forName(dataDB.driver)
@@ -77,7 +77,7 @@ class ArticleDaoImpl : ArticleDao {
         withContext(Dispatchers.IO) {
             try {
                 Class.forName(dataDB.driver)
-                val connection: Connection = DriverManager.getConnection("${dataDB.urlMySQL}?characterEncoding=UTF-8", dataDB.user, dataDB.pass)
+                val connection: Connection = DriverManager.getConnection(dataDB.urlMySQL, dataDB.user, dataDB.pass)
                 val statement: Statement = connection.createStatement()
                 val sql = "SELECT a.id, a.nombre, a.stock, c.id AS category, c.descripcion " +
                         "FROM articulo a " +

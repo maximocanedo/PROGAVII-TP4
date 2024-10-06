@@ -41,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +56,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import frgp.utn.edu.ar.tp4.activity.Article.ArticleViewModel
 import frgp.utn.edu.ar.tp4.data.daoImpl.CategoryDaoImpl
+import frgp.utn.edu.ar.tp4.data.models.Article
 import frgp.utn.edu.ar.tp4.ui.theme.TP4Theme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -133,8 +135,15 @@ fun ScaffoldView(modifier: Modifier = Modifier, viewModel: MainViewModel, articl
 fun CrearTabContent(viewModel: MainViewModel) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
-    val categories = arrayOf("Verduras", "Frutas", "Almacen", "Lacteos", "Fiambres")
-    var selectedText by remember { mutableStateOf(categories[0]) }
+    val categoryDaoImpl = CategoryDaoImpl()
+    val articleDaoImpl = ArticleDaoImpl()
+    LaunchedEffect (Unit) {
+        withContext(Dispatchers.IO) {
+            viewModel.onCreate__categoriesChange(categoryDaoImpl.getAllCategories())
+            viewModel.onCreate__selectedCategoryIndexChange(0)
+            viewModel.onCreate__selectedCategoryTextChange(viewModel.create__categories[0].getDescription())
+        }
+    }
     Column(
         modifier = Modifier.padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -143,7 +152,11 @@ fun CrearTabContent(viewModel: MainViewModel) {
         OutlinedTextField(
             value = viewModel.create__idText,
             placeholder = { Text(text = "ID") },
-            onValueChange = {viewModel.onCreate__idTextChange(it)},
+            onValueChange = {
+                CoroutineScope(Dispatchers.IO).launch {
+                    viewModel.onCreate__idTextChange(it)
+                }
+            },
             supportingText = { Text(text = viewModel.create__idMsg) },
             isError = viewModel.create__idError
         )
@@ -158,7 +171,7 @@ fun CrearTabContent(viewModel: MainViewModel) {
         Spacer(modifier = Modifier.padding(5.dp))
         OutlinedTextField(
             placeholder = { Text(text = "Stock disponible") },
-            value = viewModel.create__stockText.toString(),
+            value = viewModel.create__stockText,
             onValueChange = {viewModel.onCreate__stockTextChange(it.toInt().toString())},
             supportingText = { Text(text = viewModel.create__stockMsg) },
             isError = viewModel.create__stockError
@@ -171,7 +184,7 @@ fun CrearTabContent(viewModel: MainViewModel) {
             }
         ) {
             OutlinedTextField(
-                value = selectedText,
+                value = viewModel.create__selectedCategoryText,
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -182,13 +195,14 @@ fun CrearTabContent(viewModel: MainViewModel) {
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                categories.forEach { item ->
+                viewModel.create__categories.forEach { item ->
                     DropdownMenuItem(
-                        text = { Text(text = item) },
+                        text = { Text(text = item.getDescription()) },
                         onClick = {
-                            selectedText = item
+                            viewModel.onCreate__selectedCategoryTextChange(item.getDescription())
+                            viewModel.onCreate__selectedCategoryIndexChange(viewModel.create__categories.indexOf(item))
                             expanded = false
-                            Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, item.getDescription(), Toast.LENGTH_SHORT).show()
                         }
                     )
                 }
@@ -197,7 +211,20 @@ fun CrearTabContent(viewModel: MainViewModel) {
         Spacer(modifier = Modifier.padding(5.dp))
         Button(
             onClick = {
-                /* TODO */
+                CoroutineScope(Dispatchers.IO).launch {
+                    val article = Article(
+                        viewModel.create__idText.toInt(),
+                        viewModel.create__nameText,
+                        viewModel.create__stockText.toInt(),
+                        viewModel.create__categories[viewModel.selectedCategoryIndex]
+                    )
+                    articleDaoImpl.insertArticle(article)
+                    viewModel.onCreate__idTextChange("")
+                }
+                Toast.makeText(context, "Articulo creado", Toast.LENGTH_SHORT).show()
+                viewModel.onCreate__nameTextChange("")
+                viewModel.onCreate__stockTextChange("")
+                viewModel.onCreate__selectedCategoryIndexChange(0)
             }
         ) {
             Text(text = "Crear")
@@ -228,7 +255,11 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
                 OutlinedTextField(
                     value = viewModel.create__idText,
                     placeholder = { Text(text = "ID") },
-                    onValueChange = { viewModel.onCreate__idTextChange(it) },
+                    onValueChange = {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            viewModel.onCreate__idTextChange(it)
+                        }
+                    },
                     supportingText = { Text(text = viewModel.create__idMsg) },
                     isError = viewModel.create__idError,
                     modifier = Modifier
