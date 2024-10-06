@@ -16,12 +16,45 @@ class CategoryDaoImpl : CategoryDao {
         TODO("Not yet implemented")
     }
 
-    override fun deleteCategory(category: Category) {
-        TODO("Not yet implemented")
+    override fun deleteCategory(id: Int): Boolean {
+        val dataDB = DataDB()
+        var deleted = false
+        try {
+            val connection: Connection = DriverManager.getConnection(dataDB.urlMySQL, dataDB.user, dataDB.pass)
+            val statement: Statement = connection.createStatement()
+
+            val rowCount = statement.executeUpdate("DELETE FROM categoria WHERE id = ${id}")
+
+            deleted = rowCount > 0
+
+            statement.close()
+            connection.close()
+        }
+        catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return deleted
     }
 
     override fun getCategoryById(id: Int): Category {
-        TODO("Not yet implemented")
+        val category = Category();
+        val dataDB = DataDB()
+        try {
+            val connection: Connection = DriverManager.getConnection(dataDB.urlMySQL, dataDB.user, dataDB.pass)
+            val statement: Statement = connection.createStatement()
+            val resulSet: ResultSet = statement.executeQuery("SELECT * FROM categoria")
+
+            category.setId(resulSet.getInt("id"))
+            category.setDescription(resulSet.getString("descripcion"))
+
+            resulSet.close()
+            statement.close()
+            connection.close()
+        }
+        catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return category;
     }
 
     override suspend fun getAllCategories(): List<Category> {
