@@ -6,6 +6,6 @@ class DataDB {
     val nameBD: String = "tp4"
     val user: String = "tp4client"
     val pass: String = "UTN.TUSI.2024"
-    val urlMySQL: String = "jdbc:mysql://$host:$port/$nameBD"
+    val urlMySQL: String = "jdbc:mysql://$host:$port/$nameBD?characterEncoding=utf8"
     val driver = "com.mysql.jdbc.Driver"
 }
