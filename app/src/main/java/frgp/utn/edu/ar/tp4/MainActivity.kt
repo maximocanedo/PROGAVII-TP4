@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
@@ -30,6 +31,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
@@ -319,60 +321,19 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
 
 @Composable
 fun ListarTabContent(viewModel: MainViewModel) {
-    var items by remember { mutableStateOf(listOf<String>()) }
-    items = listOf("Producto 1", "Producto 2", "Producto 3", "Producto 4", "Producto 5")
-    val categoryDaoImpl = CategoryDaoImpl()
-    //items = categoryDaoImpl.getAllCategories().map { it.toString() }
-
-    LazyColumn (
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        items.forEach() { item ->
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .size(100.dp),
-                    shape = MaterialTheme.shapes.large,
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row (
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        )
-                        {
-                            Column {
-                                Text(
-                                    text = item,
-                                    textAlign = TextAlign.Center,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                            VerticalDivider(
-                                modifier = Modifier.padding(8.dp)
-                            )
-                            Column {
-                                Button(
-                                    onClick = {
-                                        /* TODO */
-                                    },
-                                    shape = MaterialTheme.shapes.small
-                                ) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Delete")
-                                }
-                            }
-                        }
-                    }
-                }
+    val items = viewModel.items
+    if (viewModel.listError) {
+        Text(text = viewModel.emptyListMessage, color = Color.Red)
+    } else if (items.isEmpty()) {
+        Text(text = viewModel.emptyListMessage)
+    } else {
+        LazyColumn {
+            items(items) {
+                ListItem(
+                    headlineContent = { Text(it.getName()) },
+                    supportingContent = { Text(it.getCategory().getDescription()) },
+                    trailingContent = { Text(it.getStock().toString()) }
+                )
             }
         }
     }

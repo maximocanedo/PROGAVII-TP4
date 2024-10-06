@@ -1,9 +1,14 @@
 package frgp.utn.edu.ar.tp4
 
+import ArticleDaoImpl
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import frgp.utn.edu.ar.tp4.data.models.Article
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
@@ -53,6 +58,36 @@ class MainViewModel : ViewModel() {
 
     fun onTabSelected(index: Int) {
         selectedTabIndex = index
+    }
+
+
+    /**
+     * Pestaña LISTAR
+     */
+    var items by mutableStateOf(listOf<Article>())
+        private set
+
+    var emptyListMessage by mutableStateOf("")
+        private set
+
+    var listError by mutableStateOf(false)
+        private set
+
+
+    fun loadItems() {
+        CoroutineScope(Dispatchers.IO).launch {
+            var dao = ArticleDaoImpl()
+            try {
+                items = dao.getAllArticles()
+                listError = false
+                if (items.isEmpty()) {
+                    emptyListMessage = "No hay elementos para mostrar"
+                }
+            } catch (e: Exception) {
+                listError = true
+                emptyListMessage = "Error al cargar los elementos"
+            }
+        }
     }
 
 }
