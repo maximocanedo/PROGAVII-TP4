@@ -46,8 +46,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import frgp.utn.edu.ar.tp4.activity.Article.ArticleViewModel
 import frgp.utn.edu.ar.tp4.data.daoImpl.CategoryDaoImpl
 import frgp.utn.edu.ar.tp4.data.models.Article
@@ -166,7 +164,18 @@ fun CrearTabContent(viewModel: MainViewModel) {
         OutlinedTextField(
             placeholder = { Text(text = "Stock disponible") },
             value = viewModel.create__stockText,
-            onValueChange = {viewModel.onCreate__stockTextChange(it.toInt().toString())},
+            onValueChange = {
+                try {
+                    viewModel.onCreate__stockTextChange(it.toInt().toString())
+                } catch (e: NumberFormatException) {
+                    if (it.isEmpty()) {
+                        viewModel.onCreate__stockTextChange("")
+                    } else {
+                        viewModel.create__StockErrorChange(true)
+                        viewModel.create__StockMsgChange("El stock debe ser un numero valido")
+                    }
+                }
+            },
             supportingText = { Text(text = viewModel.create__stockMsg) },
             isError = viewModel.create__stockError
         )

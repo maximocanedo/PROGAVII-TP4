@@ -46,22 +46,22 @@ class MainViewModel : ViewModel() {
         if (newText.isEmpty()) {
             create__idText = ""
         } else {
+            create__idText = newText
             try {
                 val id = newText.toInt()
                 if (articleDaoImpl.getArticleById(id).getId() == id) {
+                    create__idError = true
                     create__idMsg = "El id ya existe"
                 }
                 else {
+                    create__idError = false
                     create__idMsg = ""
                 }
-                create__idText = newText
-                create__idError = false
             } catch (e: NumberFormatException) {
                 create__idError = true
                 create__idMsg = "El id debe ser un numero valido"
             }
         }
-        create__idText = newText
     }
     fun onCreate__nameTextChange(newText: String) {
         create__nameText = newText
@@ -70,16 +70,16 @@ class MainViewModel : ViewModel() {
         if (newText.isEmpty()) {
             create__stockText = ""
         } else {
-            try {
-                val stock = newText.toInt()
-                create__stockText = newText
-                create__stockError = false
-                create__stockMsg = ""
-            } catch (e: NumberFormatException) {
-                create__stockError = true
-                create__stockMsg = "El stock debe ser un numero valido"
-            }
+            create__stockText = newText
         }
+    }
+
+    fun create__StockErrorChange(newError: Boolean) {
+        create__stockError = newError
+    }
+
+    fun create__StockMsgChange(newMsg: String) {
+        create__stockMsg = newMsg
     }
 
     fun onCreate__selectedCategoryIndexChange(newIndex: Int) {
@@ -114,7 +114,7 @@ class MainViewModel : ViewModel() {
 
     fun loadItems() {
         CoroutineScope(Dispatchers.IO).launch {
-            var dao = ArticleDaoImpl()
+            val dao = ArticleDaoImpl()
             try {
                 items = dao.getAllArticles()
                 listError = false
