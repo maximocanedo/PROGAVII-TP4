@@ -240,7 +240,6 @@ fun CrearTabContent(viewModel: MainViewModel) {
 fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewModel) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf("") }
     val articleDaoImpl = ArticleDaoImpl()
 
     Column(
@@ -277,6 +276,8 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
                             val article = articleDaoImpl.getArticleById(id.toInt())
                             withContext(Dispatchers.Main) {
                                 articleViewModel.updateFieldsFromArticle(article)
+                                viewModel.onCreate__selectedCategoryTextChange(article.getCategory().getDescription())
+                                viewModel.onCreate__selectedCategoryIndexChange(viewModel.create__categories.indexOf(article.getCategory()))
                             }
                         }
                     },
@@ -315,8 +316,7 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
             }
         ) {
             OutlinedTextField(
-                placeholder = { Text(text = "Categoria") },
-                value = articleViewModel.create__categoryText,
+                value = viewModel.create__selectedCategoryText,
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -327,20 +327,36 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                DropdownMenuItem(
-                    text = { Text(text = "") },
-                    onClick = {
-                        selectedText = ""
-                        expanded = false
-                        Toast.makeText(context, "", Toast.LENGTH_SHORT).show()
-                    }
-                )
+                viewModel.create__categories.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(text = item.getDescription()) },
+                        onClick = {
+                            viewModel.onCreate__selectedCategoryTextChange(item.getDescription())
+                            viewModel.onCreate__selectedCategoryIndexChange(viewModel.create__categories.indexOf(item))
+                            expanded = false
+                            Toast.makeText(context, item.getDescription(), Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.height(64.dp))
         Button(
             onClick = {
-                /* TODO */
+                CoroutineScope(Dispatchers.IO).launch {
+                    val article = Article(
+                        viewModel.create__idText.toInt(),
+                        articleViewModel.create__nameText,
+                        articleViewModel.create__stockText.toInt(),
+                        viewModel.create__categories[viewModel.selectedCategoryIndex]
+                    )
+                    articleDaoImpl.updateArticle(article)
+                }
+                Toast.makeText(context, "Articulo modificado", Toast.LENGTH_SHORT).show()
+                articleViewModel.create__nameText = ""
+                articleViewModel.create__stockText = ""
+                viewModel.onCreate__selectedCategoryIndexChange(0)
+                viewModel.onCreate__selectedCategoryTextChange(viewModel.create__categories[0].getDescription())
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor  = Color.DarkGray,

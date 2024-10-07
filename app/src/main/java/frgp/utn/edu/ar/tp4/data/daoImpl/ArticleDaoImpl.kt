@@ -34,7 +34,7 @@ class ArticleDaoImpl : ArticleDao {
 
     override suspend fun updateArticle(article: Article) {
         val dataDB = DataDB()
-        val sql = "UPDATE articulo SET nombre = ?, stock = ?, category = ? WHERE id = ?"
+        val sql = "UPDATE articulo SET nombre = ?, stock = ?, idCategoria = ? WHERE id = ?"
         withContext(Dispatchers.IO) {
             try {
                 Class.forName(dataDB.driver)

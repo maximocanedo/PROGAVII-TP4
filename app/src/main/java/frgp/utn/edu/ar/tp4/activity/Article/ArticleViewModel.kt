@@ -7,13 +7,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import frgp.utn.edu.ar.tp4.data.models.Article
+import frgp.utn.edu.ar.tp4.data.models.Category
 import kotlinx.coroutines.launch
 
 class ArticleViewModel() : ViewModel() {
     val articleDaoImpl = ArticleDaoImpl()
     var create__nameText by mutableStateOf("")
     var create__stockText by mutableStateOf("")
-    var create__categoryText by mutableStateOf("")
+    var create__category by mutableStateOf(Category())
 
     var create__nameMsg by mutableStateOf("")
     var create__stockMsg by mutableStateOf("")
@@ -23,7 +24,7 @@ class ArticleViewModel() : ViewModel() {
     fun updateFieldsFromArticle(article: Article) {
         create__nameText = article.getName()
         create__stockText = article.getStock().toString()
-        create__categoryText = article.getCategory().getDescription()
+        create__category = article.getCategory()
     }
 
     fun insertArticle(article: Article) {
