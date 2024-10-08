@@ -64,7 +64,18 @@ class MainViewModel : ViewModel() {
         }
     }
     fun onCreate__nameTextChange(newText: String) {
-        create__nameText = newText
+        if (newText.isEmpty()) {
+            create__nameText = ""
+        } else {
+            create__nameText = newText
+            if (newText.contains("\\d".toRegex())) {
+                create__nameError = true
+                create__nameMsg = "El nombre no puede contener numeros"
+            } else {
+                create__nameError = false
+                create__nameMsg = ""
+            }
+        }
     }
     fun onCreate__stockTextChange(newText: String) {
         if (newText.isEmpty()) {
