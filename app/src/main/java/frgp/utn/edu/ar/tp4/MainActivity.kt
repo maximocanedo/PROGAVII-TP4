@@ -165,16 +165,7 @@ fun CrearTabContent(viewModel: MainViewModel) {
             placeholder = { Text(text = "Stock disponible") },
             value = viewModel.create__stockText,
             onValueChange = {
-                try {
-                    viewModel.onCreate__stockTextChange(it.toInt().toString())
-                } catch (e: NumberFormatException) {
-                    if (it.isEmpty()) {
-                        viewModel.onCreate__stockTextChange("")
-                    } else {
-                        viewModel.create__StockErrorChange(true)
-                        viewModel.create__StockMsgChange("El stock debe ser un numero valido")
-                    }
-                }
+                viewModel.onCreate__stockTextChange(it)
             },
             supportingText = { Text(text = viewModel.create__stockMsg) },
             isError = viewModel.create__stockError
@@ -214,20 +205,24 @@ fun CrearTabContent(viewModel: MainViewModel) {
         Spacer(modifier = Modifier.padding(5.dp))
         Button(
             onClick = {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val article = Article(
-                        viewModel.create__idText.toInt(),
-                        viewModel.create__nameText,
-                        viewModel.create__stockText.toInt(),
-                        viewModel.create__categories[viewModel.selectedCategoryIndex]
-                    )
-                    articleDaoImpl.insertArticle(article)
-                    viewModel.onCreate__idTextChange("")
+                if (!viewModel.isInvalid()){
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val article = Article(
+                            viewModel.create__idText.toInt(),
+                            viewModel.create__nameText,
+                            viewModel.create__stockText.toInt(),
+                            viewModel.create__categories[viewModel.selectedCategoryIndex]
+                        )
+                        articleDaoImpl.insertArticle(article)
+                        viewModel.onCreate__idTextChange("")
+                    }
+                    Toast.makeText(context, "Articulo creado", Toast.LENGTH_SHORT).show()
+                    viewModel.onCreate__nameTextChange("")
+                    viewModel.onCreate__stockTextChange("")
+                    viewModel.onCreate__selectedCategoryIndexChange(0)
+                } else {
+                    Toast.makeText(context, "Complete los campos correctamente", Toast.LENGTH_SHORT).show()
                 }
-                Toast.makeText(context, "Articulo creado", Toast.LENGTH_SHORT).show()
-                viewModel.onCreate__nameTextChange("")
-                viewModel.onCreate__stockTextChange("")
-                viewModel.onCreate__selectedCategoryIndexChange(0)
             }
         ) {
             Text(text = "Crear")
@@ -255,15 +250,13 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
         ) {
             Column {
                 OutlinedTextField(
-                    value = viewModel.create__idText,
+                    value = articleViewModel.create__idText,
                     placeholder = { Text(text = "ID") },
                     onValueChange = {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            viewModel.onCreate__idTextChange(it)
-                        }
+                        articleViewModel.onCreate__idTextChange(it)
                     },
-                    supportingText = { Text(text = viewModel.create__idMsg) },
-                    isError = viewModel.create__idError,
+                    supportingText = { Text(text = articleViewModel.create__idMsg) },
+                    isError = articleViewModel.create__idError,
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color.White)
@@ -271,13 +264,16 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
-                        val id = viewModel.create__idText
+                        val id = articleViewModel.create__idText
                         CoroutineScope(Dispatchers.IO).launch {
                             val article = articleDaoImpl.getArticleById(id.toInt())
                             withContext(Dispatchers.Main) {
-                                articleViewModel.updateFieldsFromArticle(article)
-                                viewModel.onCreate__selectedCategoryTextChange(article.getCategory().getDescription())
-                                viewModel.onCreate__selectedCategoryIndexChange(viewModel.create__categories.indexOf(article.getCategory()))
+                                articleViewModel.onCreate__idTextChange(article.getId().toString())
+                                articleViewModel.onCreate__nameTextChange(article.getName())
+                                articleViewModel.onCreate__stockTextChange(article.getStock().toString())
+                                articleViewModel.create__CategoryChange(article.getCategory())
+                                articleViewModel.create__CategoryIndexChange(article.getCategory().getId())
+                                Toast.makeText(context, "Articulo encontrado", Toast.LENGTH_SHORT).show()
                             }
                         }
                     },
@@ -296,7 +292,7 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
         OutlinedTextField(
             placeholder = { Text(text = "Nombre") },
             value = articleViewModel.create__nameText,
-            onValueChange = {articleViewModel.create__nameText = it},
+            onValueChange = {articleViewModel.onCreate__nameTextChange(it)},
             supportingText = { Text(text = articleViewModel.create__nameMsg) },
             isError = articleViewModel.create__nameError
         )
@@ -304,7 +300,9 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
         OutlinedTextField(
             placeholder = { Text(text = "Stock disponible") },
             value = articleViewModel.create__stockText,
-            onValueChange = { articleViewModel.create__stockText = it },
+            onValueChange = {
+                articleViewModel.onCreate__stockTextChange(it)
+            },
             supportingText = { Text(text = articleViewModel.create__stockMsg) },
             isError = articleViewModel.create__stockError
         )
@@ -316,7 +314,7 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
             }
         ) {
             OutlinedTextField(
-                value = viewModel.create__selectedCategoryText,
+                value = articleViewModel.create__selectedCategoryText,
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -331,8 +329,8 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
                     DropdownMenuItem(
                         text = { Text(text = item.getDescription()) },
                         onClick = {
-                            viewModel.onCreate__selectedCategoryTextChange(item.getDescription())
-                            viewModel.onCreate__selectedCategoryIndexChange(viewModel.create__categories.indexOf(item))
+                            articleViewModel.create__CategoryChange(item)
+                            articleViewModel.create__CategoryIndexChange(viewModel.create__categories.indexOf(item))
                             expanded = false
                             Toast.makeText(context, item.getDescription(), Toast.LENGTH_SHORT).show()
                         }
@@ -343,20 +341,25 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
         Spacer(modifier = Modifier.height(64.dp))
         Button(
             onClick = {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val article = Article(
-                        viewModel.create__idText.toInt(),
-                        articleViewModel.create__nameText,
-                        articleViewModel.create__stockText.toInt(),
-                        viewModel.create__categories[viewModel.selectedCategoryIndex]
-                    )
-                    articleDaoImpl.updateArticle(article)
+                if (!articleViewModel.isInvalid()) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val article = Article(
+                            articleViewModel.create__idText.toInt(),
+                            articleViewModel.create__nameText,
+                            articleViewModel.create__stockText.toInt(),
+                            viewModel.create__categories[articleViewModel.create__selectedCategoryIndex]
+                        )
+                        articleDaoImpl.updateArticle(article)
+                    }
+                    Toast.makeText(context, "Articulo modificado", Toast.LENGTH_SHORT).show()
+                    articleViewModel.onCreate__idTextChange("")
+                    articleViewModel.onCreate__nameTextChange("")
+                    articleViewModel.onCreate__stockTextChange("")
+                    articleViewModel.create__CategoryIndexChange(0)
+                    articleViewModel.create__CategoryChange(viewModel.create__categories[0])
+                } else {
+                    Toast.makeText(context, "Complete los campos correctamente", Toast.LENGTH_SHORT).show()
                 }
-                Toast.makeText(context, "Articulo modificado", Toast.LENGTH_SHORT).show()
-                articleViewModel.create__nameText = ""
-                articleViewModel.create__stockText = ""
-                viewModel.onCreate__selectedCategoryIndexChange(0)
-                viewModel.onCreate__selectedCategoryTextChange(viewModel.create__categories[0].getDescription())
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor  = Color.DarkGray,
@@ -369,7 +372,6 @@ fun ModificarTabContent(viewModel: MainViewModel, articleViewModel: ArticleViewM
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListarTabContent(viewModel: MainViewModel) {
     val items = viewModel.items

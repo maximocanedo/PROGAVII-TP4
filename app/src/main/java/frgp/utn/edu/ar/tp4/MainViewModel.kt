@@ -82,6 +82,19 @@ class MainViewModel : ViewModel() {
             create__stockText = ""
         } else {
             create__stockText = newText
+            try {
+                val stock = newText.toInt()
+                if (newText.toIntOrNull() == null || newText.toInt() < 0) {
+                    create__stockError = true
+                    create__stockMsg = "El stock debe ser un numero valido"
+                } else {
+                    create__stockError = false
+                    create__stockMsg = ""
+                }
+            } catch (e: NumberFormatException) {
+                create__stockError = true
+                create__stockMsg = "El stock debe ser un número"
+            }
         }
     }
 
@@ -107,6 +120,10 @@ class MainViewModel : ViewModel() {
 
     fun onTabSelected(index: Int) {
         selectedTabIndex = index
+    }
+
+    fun isInvalid(): Boolean {
+        return create__idError || create__nameError || create__stockError
     }
 
 
